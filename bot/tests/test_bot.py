@@ -1,11 +1,12 @@
+import os
 import json
 import pytest
 
-from .. import bot
+from .. import bot, PACKAGEDIR
 
 
-EXAMPLE_TWEET = json.load(open('tests/examples/example-tweet.json', 'r'))
-EXAMPLE_RETWEET = json.load(open('tests/examples/retweeted-status.json', 'r'))
+EXAMPLE_TWEET = json.load(open(os.path.join(PACKAGEDIR, 'tests', 'examples', 'example-tweet.json'), 'r'))
+EXAMPLE_RETWEET = json.load(open(os.path.join(PACKAGEDIR, 'tests', 'examples', 'retweeted-status.json'), 'r'))
 
 TESTDB = 'test_goldstar.db'
 
