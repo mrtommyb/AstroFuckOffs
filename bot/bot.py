@@ -59,7 +59,7 @@ class TweetHandler():
             result = twitter.update_status(status=response,
                                            in_reply_to_status_id=self.tweet['id'])
             with open(LOGFILE, 'a') as log:
-                log.write(result)
+                log.write(json.dumps(result))
         return twitter, result
 
 
