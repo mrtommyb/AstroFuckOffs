@@ -50,7 +50,7 @@ class GoldStarDB():
                                 recipient['id'],
                                 recipient['screen_name'],
                                 json.dumps(tweet)])
-        print('Inserted {} row(s).'.format(cur.rowcount))
+        #print('Inserted {} row(s).'.format(cur.rowcount))
         self.con.commit()
 
     def count_stars(self, user_id):

@@ -19,8 +19,8 @@ class TestDB():
 
     def test_db_save(self):
         # Save a tweet to the test db and check if it got inserted
-        handler = bot.TweetHandler(EXAMPLE_TWEET, dbfile=TESTDB)
-        handler.save_to_db()
+        handler = bot.TweetHandler(EXAMPLE_TWEET, dbfile=TESTDB, dry_run=True)
+        handler.handle()
         for recipient in handler.get_recipients():
             assert self.db.count_stars(recipient['id']) == 1
         assert self.db.count_stars(123) == 0  # Random user_id

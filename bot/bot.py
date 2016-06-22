@@ -12,36 +12,45 @@ LOGFILE = 'bot.log'
 STREAMING_LOGFILE = 'streaming.log'
 
 
+class InvalidTweetException(Exception):
+    pass
+
 class TweetHandler():
-    def __init__(self, tweet, dbfile=DEFAULT_DB):
+    def __init__(self, tweet, dbfile=DEFAULT_DB, dry_run=False):
+        self.validate(tweet)
         self.tweet = tweet
         self.dbfile = dbfile
         self.db = GoldStarDB(self.dbfile)
+        self.dry_run = dry_run
 
-    def handle(self):
-        """Save stars to the database and tweet the responses."""
-        self.save_to_db()
-        self.tweet_responses()
+    def validate(self, tweet):
+        if 'text' not in tweet:
+            raise InvalidTweetException('{} does not look like a status.'.format(tweet['id']))
+        if 'retweeted_status' in tweet:
+            raise InvalidTweetException('{} is a retweet.'.format(tweet['id']))
+        if tweet['user']['screen_name'] == TWITTERHANDLE:
+            raise InvalidTweetException('{} posted by {}.'.format(tweet['id'], TWITTERHANDLE))
 
     def get_recipients(self):
         """Returns the recipients of the star as a list of dictionaries."""
         recipients = []
         for mention in self.tweet['entities']['user_mentions']:
-            if mention['name'] == TWITTERHANDLE:
-                continue
-            if self.tweet['text'][mention['indices'][1]] == '+':
+            screen_name = mention['screen_name']
+            if ((screen_name != TWITTERHANDLE) and
+                    (screen_name not in recipients) and
+                    (self.tweet['text'][mention['indices'][1]] == '+')):
                 recipients.append(mention)
-        return recipients
+        return recipients  # unique recipients only
 
-    def save_to_db(self):
+    def handle(self):
+        """Save stars to the database and tweet the responses."""
+        responses = []
         for recipient in self.get_recipients():
+            # Save the transaction in the db
             self.db.add(donor=self.tweet['user'],
                         recipient=recipient,
                         tweet=self.tweet)
-
-    def generate_responses(self):
-        responses = []
-        for recipient in self.get_recipients():
+            # Create the tweet
             url = 'https://twitter.com/{}/status/{}'.format(self.tweet['user']['screen_name'], self.tweet['id'])
             text = ('@{} Congratulations, '
                     'you just earned a 🌟 from @{}! Your total is {}. '
@@ -51,16 +60,17 @@ class TweetHandler():
                             self.db.count_stars(recipient['id']),
                             url))
             responses.append(text)
+            self.post_tweet(status=text, in_reply_to_status_id=self.tweet['id'])
         return responses
 
-    def tweet_responses(self):
-        twitter = Twython(APP_KEY, APP_SECRET, OAUTH_TOKEN, OAUTH_TOKEN_SECRET)
-        for response in self.generate_responses():
-            result = twitter.update_status(status=response,
-                                           in_reply_to_status_id=self.tweet['id'])
+    def post_tweet(self, status, in_reply_to_status_id):
+        if not self.dry_run:
+            twitter = Twython(APP_KEY, APP_SECRET, OAUTH_TOKEN, OAUTH_TOKEN_SECRET)
+            result = twitter.update_status(status=status,
+                                           in_reply_to_status_id=in_reply_to_status_id)
             with open(LOGFILE, 'a') as log:
                 log.write(json.dumps(result))
-        return twitter, result
+            return twitter, result
 
 
 class GoldStarStreamer(TwythonStreamer):
@@ -72,7 +82,6 @@ class GoldStarStreamer(TwythonStreamer):
         try:
             with open(STREAMING_LOGFILE, 'a') as log:
                 log.write(json.dumps(data))
-            if 'text' in data and data['user']['screen_name'] != TWITTERHANDLE:
                 handler = TweetHandler(data)
                 handler.handle()
         except Exception as e:
