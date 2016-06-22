@@ -15,7 +15,9 @@ STREAMING_LOGFILE = 'streaming.log'
 class InvalidTweetException(Exception):
     pass
 
+
 class TweetHandler():
+
     def __init__(self, tweet, dbfile=DEFAULT_DB, dry_run=False):
         self.validate(tweet)
         self.tweet = tweet
@@ -45,7 +47,16 @@ class TweetHandler():
     def handle(self):
         """Save stars to the database and tweet the responses."""
         responses = []
-        for recipient in self.get_recipients():
+        recipients = self.get_recipients()
+        print(self.tweet['user']['screen_name'])
+        if self.tweet['user']['screen_name'] in [rec['screen_name'] for rec in recipients]:
+            text = ("@{} I'm sorry, {}. "
+                    "I'm afraid I can't do that.".format(
+                        self.tweet['user']['screen_name'],
+                        self.tweet['user']['name'].split(' ')[0]))
+            self.post_tweet(status=text, in_reply_to_status_id=self.tweet['id'])
+            return [text]
+        for recipient in recipients:
             # Save the transaction in the db
             self.db.add(donor=self.tweet['user'],
                         recipient=recipient,
@@ -82,13 +93,12 @@ class GoldStarStreamer(TwythonStreamer):
         try:
             with open(STREAMING_LOGFILE, 'a') as log:
                 log.write(json.dumps(data))
-                handler = TweetHandler(data)
-                handler.handle()
+                TweetHandler(data).handle()
         except Exception as e:
             print('ERROR! {}'.format(e))
 
     def on_error(self, status_code, data):
-        print('ERROR: {}'.format(status_code))
+        print('STREAMER ERROR: {}'.format(status_code))
 
 
 def run():

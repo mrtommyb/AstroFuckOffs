@@ -7,6 +7,8 @@ from .. import bot, PACKAGEDIR
 
 EXAMPLE_TWEET = json.load(open(os.path.join(PACKAGEDIR, 'tests', 'examples', 'example-tweet.json'), 'r'))
 EXAMPLE_RETWEET = json.load(open(os.path.join(PACKAGEDIR, 'tests', 'examples', 'retweeted-status.json'), 'r'))
+EXAMPLE_NARCISSISTIC = json.load(open(os.path.join(PACKAGEDIR, 'tests', 'examples', 'narcissistic-tweet.json'), 'r'))
+
 
 TESTDB = 'test_goldstar.db'
 
@@ -29,3 +31,11 @@ def test_retweet():
     """A retweet should not result in a star!"""
     with pytest.raises(bot.InvalidTweetException):
         handler = bot.TweetHandler(EXAMPLE_RETWEET, dbfile=TESTDB, dry_run=True)
+
+
+def test_narcisstic():
+    """Don't allow people to give stars to themselves!"""
+    handler = bot.TweetHandler(EXAMPLE_NARCISSISTIC, dbfile=TESTDB, dry_run=True)
+    responses = handler.handle()
+    assert len(responses) == 1
+    assert responses[0] == "@exoplaneteer I'm sorry, Dan. I'm afraid I can't do that."
