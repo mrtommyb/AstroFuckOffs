@@ -6,8 +6,10 @@ from .db import DEFAULT_DB, GoldStarDB
 
 from .secrets import *
 
-
+# Configuration
 TWITTERHANDLE = 'AstroGoldStars'
+LOGFILE = 'bot.log'
+STREAMING_LOGFILE = 'streaming.log'
 
 
 class TweetHandler():
@@ -56,7 +58,8 @@ class TweetHandler():
         for response in self.generate_responses():
             result = twitter.update_status(status=response,
                                            in_reply_to_status_id=self.tweet['id'])
-            print(result)
+            with open(LOGFILE, 'a') as log:
+                log.write(result)
         return twitter, result
 
 
@@ -64,14 +67,11 @@ class GoldStarStreamer(TwythonStreamer):
 
     def __init__(self):
         super(GoldStarStreamer, self).__init__(APP_KEY, APP_SECRET, OAUTH_TOKEN, OAUTH_TOKEN_SECRET)
-        self.logfile = open('streaming.log', 'a')
-
-    def __del__(self):
-        self.logfile.close()
 
     def on_success(self, data):
         try:
-            self.logfile.write(json.dumps(data))
+            with open(STREAMING_LOGFILE, 'a') as log:
+                log.write(json.dumps(data))
             if 'text' in data and data['user']['screen_name'] != TWITTERHANDLE:
                 handler = TweetHandler(data)
                 handler.handle()
