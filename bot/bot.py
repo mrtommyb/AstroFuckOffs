@@ -2,12 +2,12 @@ import json
 from twython import Twython
 from twython import TwythonStreamer
 
-from .db import DEFAULT_DB, GoldStarDB
+from .db import DEFAULT_DB, FuckOffDB
 
 from .secrets import *
 
 # Configuration
-TWITTERHANDLE = 'AstroGoldStars'
+TWITTERHANDLE = 'AstroFuckOffs'
 LOGFILE = 'bot.log'
 STREAMING_LOGFILE = 'streaming.log'
 
@@ -22,7 +22,7 @@ class TweetHandler():
         self.validate(tweet)
         self.tweet = tweet
         self.dbfile = dbfile
-        self.db = GoldStarDB(self.dbfile)
+        self.db = FuckOffDB(self.dbfile)
         self.dry_run = dry_run
 
     def validate(self, tweet):
@@ -84,10 +84,10 @@ class TweetHandler():
             return twitter, result
 
 
-class GoldStarStreamer(TwythonStreamer):
+class FuckOffStreamer(TwythonStreamer):
 
     def __init__(self):
-        super(GoldStarStreamer, self).__init__(APP_KEY, APP_SECRET, OAUTH_TOKEN, OAUTH_TOKEN_SECRET)
+        super(FuckOffStreamer, self).__init__(APP_KEY, APP_SECRET, OAUTH_TOKEN, OAUTH_TOKEN_SECRET)
 
     def on_success(self, data):
         try:
@@ -102,7 +102,7 @@ class GoldStarStreamer(TwythonStreamer):
 
 
 def run():
-    stream = GoldStarStreamer()
+    stream = FuckOffStreamer()
     stream.statuses.filter(track='@'+TWITTERHANDLE)
 
 
