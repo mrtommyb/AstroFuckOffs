@@ -1,7 +1,7 @@
-# AstroGoldStars bot
+# AstroFuckOffs bot
 
-***Solves credit sharing in science.***
+***Solves telling other scientists to fuck off.***
 
-Give a Gold Star to a fellow astronomer by tweeting @username++ at @AstroGoldStars on Twitter!
+Give a Fuck Off to a fellow astronomer by tweeting @username-- at @AstroFuckOffs on Twitter!
 
-A hack made at the 2016 #dotastro meeting.
+
