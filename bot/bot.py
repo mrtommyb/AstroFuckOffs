@@ -63,8 +63,8 @@ class TweetHandler():
                         tweet=self.tweet)
             # Create the tweet
             url = 'https://twitter.com/{}/status/{}'.format(self.tweet['user']['screen_name'], self.tweet['id'])
-            text = ('@{} Congratulations, '
-                    'you just earned a 🌟 from @{}! Your total is {}. '
+            text = ('@{} Bad news, '
+                    'you just got told to fuck off by @{}! Your total is {}. '
                     '{}'.format(
                             recipient['screen_name'],
                             self.tweet['user']['screen_name'],
