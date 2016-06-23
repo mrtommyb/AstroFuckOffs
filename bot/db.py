@@ -1,13 +1,13 @@
-"""Wraps the sqlite database of @AstroGoldStarz"""
+"""Wraps the sqlite database of @AstroFuckOffs"""
 import json
 import os
 import sqlite3 as sql
 
-DEFAULT_DB = os.path.expanduser("~/.goldstar.db")
+DEFAULT_DB = os.path.expanduser("~/.fuckoff.db")
 
 
-class GoldStarDB():
-    """Class wrapping the SQLite database for @AstroGoldStarz on twitter.
+class FuckOffDB():
+    """Class wrapping the SQLite database for @AstroFuckOffs on twitter.
 
     Parameters
     ----------
@@ -63,4 +63,4 @@ class GoldStarDB():
         return stars
 
 if __name__ == '__main__':
-    db = GoldStarDB()
+    db = FuckOffDB()
